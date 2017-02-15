@@ -3,17 +3,17 @@
 void AHRS::setup() {
   // start the IMU and filter
   CurieIMU.begin();
-  CurieIMU.setGyroRate(25);
-  CurieIMU.setAccelerometerRate(25);
-  filter.begin(25);
+  CurieIMU.setGyroRate(100);
+  CurieIMU.setAccelerometerRate(100);
+  filter.begin(50);
 
   // Set the accelerometer range to 2G
-  CurieIMU.setAccelerometerRange(16);
+  CurieIMU.setAccelerometerRange(2);
   // Set the gyroscope range to 250 degrees/second
-  CurieIMU.setGyroRange(2000);
+  CurieIMU.setGyroRange(250);
 
   // initialize variables to pace updates to correct rate
-  microsPerReading = 1000000 / 25;
+  microsPerReading = 1000000 / 50;
   microsPrevious = micros();
 }
 
@@ -42,12 +42,16 @@ bool AHRS::loop(float* pitch, float* roll, float* heading) {
 
     // update the filter, which computes orientation
     filter.updateIMU(gx, gy, gz, ax, ay, az);
+    
 
     // print the heading, pitch and roll
     *roll = filter.getRoll();
     *pitch = filter.getPitch();
     *heading = filter.getYaw();
 
+Serial.print("sure: ");
+    Serial.println(micros()-microsNow);
+    
     // increment previous time, so we keep proper pace
     microsPrevious = microsPrevious + microsPerReading;
     return true;
