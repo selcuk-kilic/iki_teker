@@ -20,7 +20,14 @@ float convertRawGyro(int gRaw) {
   return (gRaw / 32768.0) * CurieIMU.getGyroRange();
 }
 
+signed long t0 = 0;
+signed long t1 = 0;
+
 void filterUpdateIsr() {
+  t0 = micros();
+  Serial.print("AHRSsure: ");
+  Serial.print(t0-t1);
+  Serial.print(" ");
   int aix, aiy, aiz;
   int gix, giy, giz;
   float ax, ay, az;
@@ -36,10 +43,18 @@ void filterUpdateIsr() {
 
   filter.updateIMU(gx, gy, gz, ax, ay, az);
 
+  filter.getYaw();
+t1 = micros();
+  Serial.print(t1-t0);
+  Serial.println();
   reporter(filter.getYaw(),filter.getPitch(),filter.getRoll());
-  
 }
-
+/*
+ suureler:
+ 100Hz: 36340 13660
+ 50Hz:  46340 13660
+ 25Hz:  66340 13660
+ */
 void AHRS::setup(Reporter sendResult) {
   // start the IMU and filter
   CurieIMU.begin();
@@ -51,11 +66,11 @@ void AHRS::setup(Reporter sendResult) {
   CurieIMU.setGyroRange(250);
 
   reporter = sendResult;
-  const int filterFreqHZ = 100;
+  const int filterFreqHZ = 25;
   const int oneSecInUsec = 1000000;   // A second in mirco second unit.
   filter.begin(filterFreqHZ);
-  int time = oneSecInUsec / filterFreqHZ;
-  CurieTimerOne.start(time, &filterUpdateIsr);  // set timer and callback
+  int _time = oneSecInUsec / filterFreqHZ;
+  CurieTimerOne.start(_time, &filterUpdateIsr);  // set timer and callback
 }
 
 
