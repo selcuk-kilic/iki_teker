@@ -1,5 +1,12 @@
 #include "ahrs.h"
 #include "CurieTimerOne.h"
+<<<<<<< HEAD
+ 
+unsigned long t0 = 0;
+unsigned long t1 = 0;
+
+void AHRS::filterUpdateIsr() {
+=======
 
 Madgwick filter;
 Reporter reporter;
@@ -24,6 +31,7 @@ signed long t0 = 0;
 signed long t1 = 0;
 
 void filterUpdateIsr() {
+>>>>>>> c654cd88305a7de4f5de4b164ccfdd7b9b149cfe
   t0 = micros();
   Serial.print("AHRSsure: ");
   Serial.print(t0-t1);
@@ -40,6 +48,39 @@ void filterUpdateIsr() {
   gx = convertRawGyro(gix);
   gy = convertRawGyro(giy);
   gz = convertRawGyro(giz);
+<<<<<<< HEAD
+
+  filter.updateIMU(gx, gy, gz, ax, ay, az);
+
+  filter.getYaw();
+  t1 = micros();
+  Serial.print(t1-t0);
+  Serial.println();
+  reporter(filter.getYaw(),filter.getPitch(),filter.getRoll());
+}
+/*
+ suureler:
+ 100Hz: 36340 13660
+ 50Hz:  46340 13660
+ 25Hz:  66340 13660
+ */
+void AHRS::setup(Reporter sendResult) {
+  // start the IMU and filter
+  CurieIMU.begin();
+  CurieIMU.setGyroRate(400);
+  CurieIMU.setAccelerometerRate(400);
+  // Set the accelerometer range to 2G
+  CurieIMU.setAccelerometerRange(2);
+  // Set the gyroscope range to 250 degrees/second
+  CurieIMU.setGyroRange(250);
+
+  reporter = sendResult;
+  const int filterFreqHZ = 25;
+  const int oneSecInUsec = 1000000;   // A second in mirco second unit.
+  filter.begin(filterFreqHZ);
+  int _time = oneSecInUsec / filterFreqHZ;
+  CurieTimerOne.start(_time, &filterUpdateIsr);  // set timer and callback
+=======
 
   filter.updateIMU(gx, gy, gz, ax, ay, az);
 
@@ -48,6 +89,7 @@ t1 = micros();
   Serial.print(t1-t0);
   Serial.println();
   reporter(filter.getYaw(),filter.getPitch(),filter.getRoll());
+>>>>>>> c654cd88305a7de4f5de4b164ccfdd7b9b149cfe
 }
 /*
  suureler:
